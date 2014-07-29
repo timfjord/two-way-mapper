@@ -1,4 +1,4 @@
-# Activemapping
+# Active Mapping [![Build Status](https://travis-ci.org/timsly/activemapping.svg?branch=master)](https://travis-ci.org/timsly/activemapping)
 
 Two way data mapping
 

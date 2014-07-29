@@ -5,7 +5,6 @@ require 'activemapping'
 
 require 'rspec/its'
 require 'ostruct'
-require 'debugger'
 
 RSpec.configure do |config|
 end
