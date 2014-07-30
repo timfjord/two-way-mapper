@@ -28,6 +28,18 @@ describe ActiveMapping::Mapping do
       expect(rule.left.selector).to eql 'key1'
       expect(rule.right.selector).to eql 'Key2'
     end
+
+    context 'options' do
+      let(:mapping_with_options) { ActiveMapping::Mapping.new :object, :hash, left_opt: { strngify_keys: true }, right_opt: { strngify_keys: true } }
+
+      it 'should allow left and right options from mapping options' do
+        mapping_with_options.rule 'key1', 'Key1'
+
+        rule = mapping_with_options.rules.first
+        expect(rule.left.opt).to include strngify_keys: true
+        expect(rule.right.opt).to include strngify_keys: true
+      end
+    end
   end
 
   context 'convertion methods' do
