@@ -18,5 +18,12 @@ describe ActiveMapping::Tools do
       expect(k).to eql :a
       expect(v).to eql 1
     end
+
+    it 'should delete first item' do
+      hash = { a: 1, b: 2 }
+      k, v = tools.first_item_from_hash! hash
+
+      expect(hash).not_to include a: 1
+    end
   end
 end

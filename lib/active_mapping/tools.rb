@@ -5,6 +5,7 @@ module ActiveMapping
         raise ArgumentError unless hash.is_a?(Hash)
         raise ArgumentError unless first = hash.first
 
+        hash.delete first[0]
         first
       end
     end

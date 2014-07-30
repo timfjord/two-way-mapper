@@ -3,7 +3,7 @@ module ActiveMapping
     class Abstract
       DIVIDER = '.'
 
-      attr_reader :selector
+      attr_reader :selector, :opt
 
       def initialize(selector, opt = {})
         @selector = selector.to_s

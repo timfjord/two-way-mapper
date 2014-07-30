@@ -16,5 +16,13 @@ describe ActiveMapping::Map do
       mapping = map[:import]
       expect(mapping).to be_instance_of ActiveMapping::Mapping
     end
+
+    it 'should pass options to mapping and delete plugin option' do
+      map.register :import, object: :hash, left_opt: {}
+
+      mapping = map[:import]
+      expect(mapping.opt).to include left_opt: {}
+      expect(mapping.opt).not_to include object: :hash
+    end
   end
 end
