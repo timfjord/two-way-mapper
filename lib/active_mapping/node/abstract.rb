@@ -3,19 +3,18 @@ module ActiveMapping
     class Abstract
       DIVIDER = '.'
 
-      attr_reader :selector, :opt
+      attr_accessor :selector, :options
 
-      def initialize(selector, opt = {})
-        @selector = selector.to_s
-        @opt = opt
+      def initialize(selector, options = {})
+        @selector, @options = selector, options
       end
 
       def keys(&block)
         unless block
-          block = @opt[:stringify_keys] ? :to_s : :to_sym
+          block = options[:stringify_keys] ? :to_s : :to_sym
           block = block.to_proc
         end
-        @selector.split(DIVIDER).map &block
+        selector.split(DIVIDER).map &block
       end
 
       def read(source)
@@ -44,7 +43,6 @@ module ActiveMapping
       end
 
       def rewind_to?(obj, key)
-
       end
 
       def create_node(obj, key)

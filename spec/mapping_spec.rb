@@ -1,17 +1,42 @@
 describe ActiveMapping::Mapping do
-  describe 'participant classes' do
-    subject { ActiveMapping::Mapping.new :object, :hash }
+  [:left, :right].each do |method|
+    describe "##{method}" do
+      let(:mapping) { ActiveMapping::Mapping.new }
 
-    its(:left_class) { should eql ActiveMapping::Node::Object }
-    its(:right_class) { should eql ActiveMapping::Node::Hash }
+      it "should set #{method} with options" do
+        mapping.send method, :object, opt1: ''
+
+        expect(mapping.send("#{method}_class")).to eql ActiveMapping::Node::Object
+        expect(mapping.send("#{method}_options")).to include opt1: ''
+      end
+    end
   end
 
   describe '#rule' do
-    let(:mapping) { ActiveMapping::Mapping.new :object, :hash }
-    subject { mapping.rule 'key1', 'Key1' }
+    let(:mapping) { ActiveMapping::Mapping.new }
+    before :each do
+      mapping.left :object
+      mapping.right :hash
+    end
+
+    context 'left and right validation' do
+      let(:mapping_without_both) { ActiveMapping::Mapping.new }
+      let(:mapping_without_left) { ActiveMapping::Mapping.new }
+      let(:mapping_without_right) { ActiveMapping::Mapping.new }
+      before :each do
+        mapping_without_left.right :hash
+        mapping_without_right.left :hash
+      end
+
+      it 'should raise error when no left or right nodes' do
+        expect{mapping_without_left.rule 'key', 'key'}.to raise_error
+        expect{mapping_without_right.rule 'key', 'key'}.to raise_error
+        expect{mapping_without_both.rule 'key', 'key'}.to raise_error
+      end
+    end
 
     it 'should add item to rules hash' do
-      expect{subject}.to change{mapping.rules.count}.from(0).to(1)
+      expect{mapping.rule 'key1', 'Key1'}.to change{mapping.rules.count}.from(0).to(1)
 
       rule = mapping.rules.first
       expect(rule).to be_instance_of ActiveMapping::Rule
@@ -29,26 +54,24 @@ describe ActiveMapping::Mapping do
       expect(rule.right.selector).to eql 'Key2'
     end
 
-    context 'options' do
-      let(:mapping_with_options) { ActiveMapping::Mapping.new :object, :hash, left_opt: { strngify_keys: true }, right_opt: { strngify_keys: true } }
+    it 'should allow to pass left abd right options ' do
+      mapping.rule 'key1', 'Key2', left: { opt1: 'val' }, right: { opt2: 'val' }
+      rule = mapping.rules.first
 
-      it 'should allow left and right options from mapping options' do
-        mapping_with_options.rule 'key1', 'Key1'
-
-        rule = mapping_with_options.rules.first
-        expect(rule.left.opt).to include strngify_keys: true
-        expect(rule.right.opt).to include strngify_keys: true
-      end
+      expect(rule.left.options).to include opt1: 'val'
+      expect(rule.right.options).to include opt2: 'val'
     end
   end
 
   context 'convertion methods' do
-    let(:mapping) { ActiveMapping::Mapping.new :object, :hash }
+    let(:mapping) { ActiveMapping::Mapping.new }
     let(:rule1) { double from_left_to_right: nil, from_right_to_left: nil }
     let(:rule2) { double from_left_to_right: nil, from_right_to_left: nil }
     let(:left_obj) { double() }
     let(:right_obj) { double() }
     before :each do
+      mapping.left :object
+      mapping.right :hash
       allow(mapping).to receive(:rules).and_return [rule1, rule2]
     end
 

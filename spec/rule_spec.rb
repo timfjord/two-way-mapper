@@ -29,11 +29,7 @@ describe ActiveMapping::Rule do
     end
 
     context 'with map option' do
-      let(:map) do
-        {
-          'value' => 'VALUE'
-        }
-      end
+      let(:map) { { 'value' => 'VALUE' } }
       let(:rule) { ActiveMapping::Rule.new left_node, right_node, map: map, default: 'not found' }
 
       describe '#from_left_to_right' do

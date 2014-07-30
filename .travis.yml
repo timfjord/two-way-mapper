@@ -13,4 +13,4 @@ rvm:
  - jruby
 
 gemfile:
-  - Gemfile
+  - Gemfile.ci
