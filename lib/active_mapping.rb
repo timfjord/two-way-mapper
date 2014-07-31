@@ -1,5 +1,6 @@
 require 'active_support/dependencies/autoload'
 require 'active_support/core_ext/module/delegation'
+require 'active_support/inflector'
 
 module ActiveMapping
   extend ActiveSupport::Autoload

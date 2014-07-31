@@ -1,26 +1,32 @@
 module ActiveMapping
   class Mapping
-    attr_reader :rules, :opt
+    attr_reader :rules, :left_class, :left_options, :right_class, :right_options
 
-    def initialize(l_plugin, r_plugin, opt = {})
-      @left_plugin = l_plugin
-      @right_plugin = r_plugin
-      @opt = opt
-
+    def initialize
       @rules = []
     end
 
-    def left_class
-      ActiveMapping::Node.const_get ActiveSupport::Inflector.camelize(@left_plugin.to_s)
+    [:left, :right].each do |method|
+      class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def #{method}(plugin, options = {})
+          @#{method}_class = node_class plugin
+          @#{method}_options = options
+        end
+      CODE
     end
 
-    def right_class
-      ActiveMapping::Node.const_get ActiveSupport::Inflector.camelize(@right_plugin.to_s)
+    def node_class(plugin)
+      ActiveMapping::Node.const_get plugin.to_s.camelize
+    rescue NameError
+      raise NameError, 'Cannot find node'
     end
 
     def rule(left_selector, right_selector = {}, opt = {})
-      left_opt = opt.delete(:left_opt) || {}
-      right_opt = opt.delete(:right_opt) || {}
+      raise 'You need to set left before calling rule' unless left_class
+      raise 'You need to set right before calling rule' unless right_class
+
+      left_opt = opt.delete(:left) || {}
+      right_opt = opt.delete(:right) || {}
 
       if left_selector.is_a?(Hash)
         raise ArgumentError if left_selector.count < 2
@@ -31,11 +37,8 @@ module ActiveMapping
         right_opt.merge! opt.delete right_selector
       end
 
-      left_opt = @opt[:left_opt].merge left_opt if @opt[:left_opt].is_a?(Hash)
-      right_opt = @opt[:right_opt].merge right_opt if @opt[:right_opt].is_a?(Hash)
-
-      left = left_class.new left_selector, left_opt
-      right = right_class.new right_selector, right_opt
+      left = left_class.new left_selector, left_options.merge(left_opt)
+      right = right_class.new right_selector, right_options.merge(right_opt)
 
       @rules << Rule.new(left, right, opt)
     end
