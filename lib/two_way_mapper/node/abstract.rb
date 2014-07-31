@@ -24,6 +24,12 @@ module TwoWayMapper
       def write(obj, value)
       end
 
+      def writable?(data)
+        !options[:write_if] ||
+        !options[:write_if].respond_to?(:call) ||
+        options[:write_if].call(data)
+      end
+
       private
 
       def rewind_forward(obj, margin = 0)

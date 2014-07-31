@@ -48,4 +48,18 @@ describe TwoWayMapper::Node::Hash do
       end
     end
   end
+
+  context 'write_if option' do
+    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11', write_if: ->(v) { v.empty? } }
+    let(:writable_obj) { { key1: { key11: '' } } }
+    let(:not_writable_obj) { { key1: { key11: 'smth' } } }
+
+    it 'should not write if such option passed and it satisfy condition' do
+      node.write writable_obj, 'value'
+      node.write not_writable_obj, 'value'
+
+      expect(writable_obj[:key1][:key11]).to eql 'value'
+      expect(not_writable_obj[:key1][:key11]).not_to eql 'value'
+    end
+  end
 end
