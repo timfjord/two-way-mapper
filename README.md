@@ -1,4 +1,4 @@
-# Active Mapping [![Build Status](https://travis-ci.org/timsly/activemapping.svg?branch=master)](https://travis-ci.org/timsly/activemapping)
+# Two Way Mapper [![Build Status](https://travis-ci.org/timsly/two-way-mapper.svg?branch=master)](https://travis-ci.org/timsly/two-way-mapper)
 
 Two way data mapping
 
@@ -7,7 +7,7 @@ Two way data mapping
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'activemapping'
+gem 'two-way-mapper'
 ```
 
 And then execute:
@@ -16,14 +16,14 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install activemapping
+    $ gem install two-way-mapper
 
 ## Usage
 
 First, we need to define mapping
 
 ```ruby
-ActiveMapping.register :customer do |mapping|
+TwoWayMapper.register :customer do |mapping|
   mapping.left :object # set left plugin to object
   mapping.right :hash, stringify_keys: true # set right plugin to hash
 
@@ -46,7 +46,7 @@ Customer = Struct.new :first_name, :last_name, :gender
 customer = Customer.new
 api_response = { 'FirstName' => 'Evee', 'LastName' => 'Fjord', 'sex' => 'female' }
 
-ActiveMapping[:customer].from_right_to_left customer, api_response
+TwoWayMapper[:customer].from_right_to_left customer, api_response
 puts customer.first_name # => 'Evee'
 puts customer.last_name # => 'Fjord'
 puts customer.gender # => 'F'
@@ -58,7 +58,7 @@ another_customer.first_name = 'Step'
 another_customer.last_name = 'Bander'
 another_customer.gender = 'M'
 
-ActiveMapping[:customer].from_left_to_right another_customer, request_data
+TwoWayMapper[:customer].from_left_to_right another_customer, request_data
 puts request_data # => { 'FirstName' => 'Step', 'LastName' => 'Bander', sex: 'male' }
 ```
 

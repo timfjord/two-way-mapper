@@ -1,12 +1,12 @@
-describe ActiveMapping::Map do
+describe TwoWayMapper::Map do
   describe '#register' do
-    let(:map) { ActiveMapping::Map.new }
+    let(:map) { TwoWayMapper::Map.new }
 
     it 'should register new mapping' do
       map.register :import
 
       mapping = map[:import]
-      expect(mapping).to be_instance_of ActiveMapping::Mapping
+      expect(mapping).to be_instance_of TwoWayMapper::Mapping
     end
   end
 end

@@ -1,4 +1,4 @@
-module ActiveMapping
+module TwoWayMapper
   module Node
     class Hash < Abstract
       def write(source, value)

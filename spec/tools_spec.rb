@@ -1,5 +1,5 @@
-describe ActiveMapping::Tools do
-  let(:tools) { ActiveMapping::Tools }
+describe TwoWayMapper::Tools do
+  let(:tools) { TwoWayMapper::Tools }
 
   describe '.first_item_from_hash!' do
     it 'should raise error unless hash passed' do

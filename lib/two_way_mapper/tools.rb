@@ -1,4 +1,4 @@
-module ActiveMapping
+module TwoWayMapper
   module Tools
     class << self
       def first_item_from_hash!(hash)

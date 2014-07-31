@@ -1,11 +1,11 @@
-describe ActiveMapping::Rule do
+describe TwoWayMapper::Rule do
   context 'transformation methods' do
-    let(:left_node) { ActiveMapping::Node::Object.new 'key1' }
-    let(:right_node) { ActiveMapping::Node::Hash.new 'Kk.Key1' }
+    let(:left_node) { TwoWayMapper::Node::Object.new 'key1' }
+    let(:right_node) { TwoWayMapper::Node::Hash.new 'Kk.Key1' }
     let(:left_object) { OpenStruct.new }
 
     context 'without options' do
-      let(:rule) { ActiveMapping::Rule.new left_node, right_node }
+      let(:rule) { TwoWayMapper::Rule.new left_node, right_node }
 
       describe '#from_left_to_right' do
         it 'should read from left node and write to right node' do
@@ -30,7 +30,7 @@ describe ActiveMapping::Rule do
 
     context 'with map option' do
       let(:map) { { 'value' => 'VALUE' } }
-      let(:rule) { ActiveMapping::Rule.new left_node, right_node, map: map, default: 'not found' }
+      let(:rule) { TwoWayMapper::Rule.new left_node, right_node, map: map, default: 'not found' }
 
       describe '#from_left_to_right' do
         it 'should read from left node and write to right node' do

@@ -2,7 +2,7 @@ require 'active_support/dependencies/autoload'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/inflector'
 
-module ActiveMapping
+module TwoWayMapper
   extend ActiveSupport::Autoload
 
   autoload :Map
@@ -21,4 +21,4 @@ module ActiveMapping
   end
 end
 
-require 'active_mapping/railtie' if defined? Rails
+require 'two_way_mapper/railtie' if defined? Rails

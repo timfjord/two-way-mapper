@@ -1,6 +1,6 @@
-describe ActiveMapping::Node::Hash do
+describe TwoWayMapper::Node::Hash do
   context 'normal keys' do
-    let(:node) { ActiveMapping::Node::Hash.new 'key1.key11.key111' }
+    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11.key111' }
 
     describe '#read' do
       it 'should return nil when path is not avaiable' do
@@ -25,7 +25,7 @@ describe ActiveMapping::Node::Hash do
   end
 
   context 'string keys' do
-    let(:node) { ActiveMapping::Node::Hash.new 'key1.key11.key111', stringify_keys: true }
+    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11.key111', stringify_keys: true }
 
     describe '#read' do
       it 'should return nil when path is not avaiable' do

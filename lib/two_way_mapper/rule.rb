@@ -1,4 +1,4 @@
-module ActiveMapping
+module TwoWayMapper
   class Rule
     attr_reader :left, :right
 

@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'active_mapping/version'
+require 'two_way_mapper/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "activemapping"
-  spec.version       = ActiveMapping::VERSION
+  spec.name          = "two-way-mapper"
+  spec.version       = TwoWayMapper::VERSION
   spec.authors       = ["Tima Maslyuchenko"]
   spec.email         = ["insside@gmail.com"]
   spec.description   = %q{Two way data mapping}

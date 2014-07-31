@@ -1,5 +1,5 @@
-describe ActiveMapping::Node::Object do
-  let(:node) { ActiveMapping::Node::Object.new 'key1.key11.key111' }
+describe TwoWayMapper::Node::Object do
+  let(:node) { TwoWayMapper::Node::Object.new 'key1.key11.key111' }
 
   describe '#read' do
     it 'should return nil when path is not avaiable' do

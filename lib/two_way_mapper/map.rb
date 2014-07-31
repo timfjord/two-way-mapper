@@ -1,4 +1,4 @@
-module ActiveMapping
+module TwoWayMapper
   class Map
     delegate :[], to: :@maps
 
@@ -7,7 +7,7 @@ module ActiveMapping
     end
 
     def register(name)
-      mapping = ActiveMapping::Mapping.new
+      mapping = TwoWayMapper::Mapping.new
       yield mapping if block_given?
       @maps[name.to_sym] = mapping
     end

@@ -1,3 +1,3 @@
-module ActiveMapping
+module TwoWayMapper
   VERSION = "0.0.1"
 end

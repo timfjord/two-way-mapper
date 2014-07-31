@@ -1,4 +1,4 @@
-module ActiveMapping
+module TwoWayMapper
   class Mapping
     attr_reader :rules, :left_class, :left_options, :right_class, :right_options
 
@@ -16,7 +16,7 @@ module ActiveMapping
     end
 
     def node_class(plugin)
-      ActiveMapping::Node.const_get plugin.to_s.camelize
+      TwoWayMapper::Node.const_get plugin.to_s.camelize
     rescue NameError
       raise NameError, 'Cannot find node'
     end

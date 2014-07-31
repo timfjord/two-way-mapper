@@ -1,28 +1,28 @@
-describe ActiveMapping::Mapping do
+describe TwoWayMapper::Mapping do
   [:left, :right].each do |method|
     describe "##{method}" do
-      let(:mapping) { ActiveMapping::Mapping.new }
+      let(:mapping) { TwoWayMapper::Mapping.new }
 
       it "should set #{method} with options" do
         mapping.send method, :object, opt1: ''
 
-        expect(mapping.send("#{method}_class")).to eql ActiveMapping::Node::Object
+        expect(mapping.send("#{method}_class")).to eql TwoWayMapper::Node::Object
         expect(mapping.send("#{method}_options")).to include opt1: ''
       end
     end
   end
 
   describe '#rule' do
-    let(:mapping) { ActiveMapping::Mapping.new }
+    let(:mapping) { TwoWayMapper::Mapping.new }
     before :each do
       mapping.left :object
       mapping.right :hash
     end
 
     context 'left and right validation' do
-      let(:mapping_without_both) { ActiveMapping::Mapping.new }
-      let(:mapping_without_left) { ActiveMapping::Mapping.new }
-      let(:mapping_without_right) { ActiveMapping::Mapping.new }
+      let(:mapping_without_both) { TwoWayMapper::Mapping.new }
+      let(:mapping_without_left) { TwoWayMapper::Mapping.new }
+      let(:mapping_without_right) { TwoWayMapper::Mapping.new }
       before :each do
         mapping_without_left.right :hash
         mapping_without_right.left :hash
@@ -39,7 +39,7 @@ describe ActiveMapping::Mapping do
       expect{mapping.rule 'key1', 'Key1'}.to change{mapping.rules.count}.from(0).to(1)
 
       rule = mapping.rules.first
-      expect(rule).to be_instance_of ActiveMapping::Rule
+      expect(rule).to be_instance_of TwoWayMapper::Rule
       expect(rule.left.selector).to eql 'key1'
       expect(rule.right.selector).to eql 'Key1'
     end
@@ -64,7 +64,7 @@ describe ActiveMapping::Mapping do
   end
 
   context 'convertion methods' do
-    let(:mapping) { ActiveMapping::Mapping.new }
+    let(:mapping) { TwoWayMapper::Mapping.new }
     let(:rule1) { double from_left_to_right: nil, from_right_to_left: nil }
     let(:rule2) { double from_left_to_right: nil, from_right_to_left: nil }
     let(:left_obj) { double() }
