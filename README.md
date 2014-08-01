@@ -68,6 +68,7 @@ On rails, you can put all mappings into `app/mappings` folder
 
 * hash
 * object
+* active_record (same as object, but for keys like `user.email`, it will try to build `user` before updating `email` on write)
 
 ## Contributing
 
