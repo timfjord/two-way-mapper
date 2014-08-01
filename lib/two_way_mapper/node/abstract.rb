@@ -24,10 +24,10 @@ module TwoWayMapper
       def write(obj, value)
       end
 
-      def writable?(data)
+      def writable?(current_value, new_value)
         !options[:write_if] ||
         !options[:write_if].respond_to?(:call) ||
-        options[:write_if].call(data)
+        options[:write_if].call(current_value, new_value)
       end
 
       private

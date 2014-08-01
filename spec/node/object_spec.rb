@@ -25,15 +25,18 @@ describe TwoWayMapper::Node::Object do
   end
 
   context 'write_if option' do
-    let(:node) { TwoWayMapper::Node::Object.new 'key', write_if: ->(v) { v.empty? } }
-    let(:writable_obj) { OpenStruct.new key: '' }
+    let(:node) { TwoWayMapper::Node::Object.new 'key', write_if: ->(c, n) { c.empty? || n == 'value1'} }
+    let(:writable_obj1) { OpenStruct.new key: '' }
+    let(:writable_obj2) { OpenStruct.new key: 'smth' }
     let(:not_writable_obj) { OpenStruct.new key: 'smth' }
 
     it 'should not write if such option passed and it satisfy condition' do
-      node.write writable_obj, 'value'
+      node.write writable_obj1, 'value'
+      node.write writable_obj2, 'value1'
       node.write not_writable_obj, 'value'
 
-      expect(writable_obj.key).to eql 'value'
+      expect(writable_obj1.key).to eql 'value'
+      expect(writable_obj2.key).to eql 'value1'
       expect(not_writable_obj.key).not_to eql 'value'
     end
   end

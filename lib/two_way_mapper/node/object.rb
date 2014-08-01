@@ -4,7 +4,7 @@ module TwoWayMapper
       def write(source, value)
         rewinded = rewind_forward source, 1
 
-        rewinded.send "#{keys.last}=", value if writable? rewinded.send(keys.last)
+        rewinded.send "#{keys.last}=", value if writable? rewinded.send(keys.last), value
       end
 
       private
