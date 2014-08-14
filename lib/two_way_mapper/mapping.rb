@@ -43,10 +43,11 @@ module TwoWayMapper
       @rules << Rule.new(left, right, opt)
     end
 
-    [:from_left_to_right, :from_right_to_left].each do |method|
+    { left: :right, right: :left }.each do |from, to|
       class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{method}(left_obj, right_obj)
-          rules.each { |r| r.#{method} left_obj, right_obj }
+        def from_#{from}_to_#{to}(left_obj, right_obj)
+          rules.each { |r| r.from_#{from}_to_#{to} left_obj, right_obj }
+          #{to}_obj
         end
       CODE
     end

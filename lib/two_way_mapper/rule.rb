@@ -14,6 +14,8 @@ module TwoWayMapper
           value = #{from}.read #{from}_obj
           value = map_value value, #{(from == :left).inspect}
           #{to}.write #{to}_obj, value
+
+          #{to}_obj
         end
       CODE
     end
