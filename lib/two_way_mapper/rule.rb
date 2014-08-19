@@ -13,6 +13,9 @@ module TwoWayMapper
         def from_#{from}_to_#{to}(left_obj, right_obj)
           value = #{from}.read #{from}_obj
           value = map_value value, #{(from == :left).inspect}
+          if @options[:on_#{from}_to_#{to}].respond_to? :call
+            value = @options[:on_#{from}_to_#{to}].call value
+          end
           #{to}.write #{to}_obj, value
 
           #{to}_obj
@@ -26,7 +29,8 @@ module TwoWayMapper
       map = @options[:map]
       if map && map.is_a?(Hash)
         map = map.invert unless left_to_right
-        value = map[value] || @options[:default]
+        default_key = "default_#{left_to_right ? 'left' : 'right'}".to_sym
+        value = map[value] || @options[default_key] || @options[:default]
       else
         value
       end
