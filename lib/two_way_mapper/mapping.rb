@@ -21,10 +21,11 @@ module TwoWayMapper
       raise NameError, 'Cannot find node'
     end
 
-    def rule(left_selector, right_selector = {}, opt = {})
+    def rule(left_selector, right_selector = {}, options = {})
       raise 'You need to set left before calling rule' unless left_class
       raise 'You need to set right before calling rule' unless right_class
 
+      opt = options.dup
       left_opt = opt.delete(:left) || {}
       right_opt = opt.delete(:right) || {}
 
