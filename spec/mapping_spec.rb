@@ -61,6 +61,13 @@ describe TwoWayMapper::Mapping do
       expect(rule.left.options).to include opt1: 'val'
       expect(rule.right.options).to include opt2: 'val'
     end
+
+    it 'should work with options copy' do
+      options = { left: { opt1: 'val' }, right: { opt2: 'val' } }
+      mapping.rule 'key1', 'Key2', options
+
+      expect(options).to eql left: { opt1: 'val' }, right: { opt2: 'val' }
+    end
   end
 
   context 'convertion methods' do
