@@ -3,39 +3,45 @@
 describe TwoWayMapper::Mapping do
   let(:mapping) { described_class.new }
 
-  [:left, :right].each do |method|
-    describe "##{method}" do
-      it "should set #{method} with options" do
-        mapping.send method, :object, opt1: ''
+  described_class::DIRECTIONS.each do |direction|
+    describe "##{direction}" do
+      it "should set #{direction} with options" do
+        mapping.send direction, :object, opt1: ''
 
-        expect(mapping.send("#{method}_class")).to eql TwoWayMapper::Node::Object
-        expect(mapping.send("#{method}_options")).to include opt1: ''
+        expect(mapping.send("#{direction}_class")).to eql TwoWayMapper::Node::Object
+        expect(mapping.send("#{direction}_options")).to include opt1: ''
+      end
+    end
+  end
+
+  context 'selectors' do
+    before do
+      mapping.left :object
+      mapping.right :object
+
+      mapping.rule 'firstname', 'FirstName'
+      mapping.rule 'fullname',  'FullName', from_right_to_left_only: true
+      mapping.rule 'lastname',  'LastName'
+      mapping.rule 'fullname1', 'FullName1', from_left_to_right_only: true
+    end
+
+    describe '#left_selectors' do
+      it 'should get left selectors' do
+        expect(mapping.left_selectors).to eql %w(firstname fullname lastname fullname1)
+      end
+
+      it 'should include only mappable selectors if such option is passed' do
+        expect(mapping.left_selectors(mappable: true)).to eql %w(firstname fullname lastname)
       end
     end
 
-    context 'selectors' do
-      before do
-        mapping.left :object
-        mapping.right :object
-
-        mapping.rule 'firstname', 'FirstName'
-        mapping.rule 'lastname', 'LastName'
+    describe '#right_selectors' do
+      it 'should get right selectors' do
+        expect(mapping.right_selectors).to eql %w(FirstName FullName LastName FullName1)
       end
 
-      describe "#left_selectors" do
-        subject { mapping.left_selectors }
-
-        it "should get left selectors" do
-          is_expected.to eql %w(firstname lastname)
-        end
-      end
-
-      describe "#right_selectors" do
-        subject { mapping.right_selectors }
-
-        it "should get right selectors" do
-          is_expected.to eql %w(FirstName LastName)
-        end
+      it 'should include only mappable selectors if such option is passed' do
+        expect(mapping.right_selectors(mappable: true)).to eql %w(FirstName LastName FullName1)
       end
     end
   end
@@ -110,7 +116,9 @@ describe TwoWayMapper::Mapping do
       allow(mapping).to receive(:rules).and_return [rule1, rule2]
     end
 
-    [:from_left_to_right, :from_right_to_left].each do |method|
+    [described_class::DIRECTIONS, described_class::DIRECTIONS.reverse].each do |from, to|
+      method = "from_#{from}_to_#{to}"
+
       describe "##{method}" do
         it 'should proxy to all rules' do
           expect(rule1).to receive(method).with left_obj, right_obj

@@ -2,31 +2,34 @@
 
 module TwoWayMapper
   class Mapping
+    DIRECTIONS = [:left, :right].freeze
+
     attr_reader :rules, :left_class, :left_options, :right_class, :right_options
 
     def initialize
       @rules = []
     end
 
-    [:left, :right].each do |method|
+    [DIRECTIONS, DIRECTIONS.reverse].each do |from, to|
       class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{method}(plugin, options = {})
-          @#{method}_class = node_class(plugin)
-          @#{method}_options = options
+        def #{from}(plugin, options = {})
+          @#{from}_class = node_class(plugin)
+          @#{from}_options = options
+        end
+
+        def #{from}_selectors(mappable: false)
+          rules.each_with_object [] do |rule, memo|
+            next if mappable && rule.from_#{from}_to_#{to}_only?
+
+            memo << rule.#{from}.selector
+          end
+        end
+
+        def from_#{from}_to_#{to}(left_obj, right_obj)
+          rules.each { |rule| rule.from_#{from}_to_#{to}(left_obj, right_obj) }
+          #{to}_obj
         end
       CODE
-
-      class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{method}_selectors
-          rules.map { |rule| rule.#{method}.selector }
-        end
-      CODE
-    end
-
-    def node_class(plugin)
-      TwoWayMapper::Node.const_get(plugin.to_s.camelize)
-    rescue NameError
-      raise NameError, 'Cannot find node'
     end
 
     def rule(left_selector, right_selector = {}, options = {})
@@ -53,13 +56,12 @@ module TwoWayMapper
       @rules << Rule.new(left, right, opt)
     end
 
-    { left: :right, right: :left }.each do |from, to|
-      class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def from_#{from}_to_#{to}(left_obj, right_obj)
-          rules.each { |r| r.from_#{from}_to_#{to}(left_obj, right_obj) }
-          #{to}_obj
-        end
-      CODE
+    private
+
+    def node_class(plugin)
+      TwoWayMapper::Node.const_get(plugin.to_s.camelize)
+    rescue NameError
+      raise NameError, 'Cannot find node'
     end
   end
 end
