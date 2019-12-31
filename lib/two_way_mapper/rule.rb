@@ -10,29 +10,48 @@ module TwoWayMapper
       @options = opt
     end
 
-    { left: :right, right: :left }.each do |from, to|
-      class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def from_#{from}_to_#{to}(left_obj, right_obj)
-          value = #{from}.read(#{from}_obj)
-          value = map_value(value, #{(from == :left).inspect})
-          if @options[:on_#{from}_to_#{to}].respond_to?(:call)
-            value = @options[:on_#{from}_to_#{to}].call(value)
-          end
-          #{to}.write(#{to}_obj, value)
+    def from_left_to_right(left_obj, right_obj)
+      return right_obj if from_right_to_left_only?
 
-          #{to}_obj
-        end
-      CODE
+      value = left.read(left_obj)
+      value = map_value(value, true)
+      if @options[:on_left_to_right].respond_to?(:call)
+        value = @options[:on_left_to_right].call(value, left_obj, right_obj)
+      end
+      right.write(right_obj, value)
+
+      right_obj
+    end
+
+    def from_right_to_left(left_obj, right_obj)
+      return left_obj if from_left_to_right_only?
+
+      value = right.read(right_obj)
+      value = map_value(value, false)
+      if @options[:on_right_to_left].respond_to?(:call)
+        value = @options[:on_right_to_left].call(value, left_obj, right_obj)
+      end
+      left.write(left_obj, value)
+
+      left_obj
+    end
+
+    def from_right_to_left_only?
+      @options[:from_right_to_left_only]
+    end
+
+    def from_left_to_right_only?
+      @options[:from_left_to_right_only]
     end
 
     private
 
     def map_value(value, left_to_right = true)
       map = @options[:map]
-      if map && map.is_a?(Hash)
+      if map.is_a?(Hash)
         map = map.invert unless left_to_right
         default_key = "default_#{left_to_right ? 'left' : 'right'}".to_sym
-        value = map[value] || @options[default_key] || @options[:default]
+        map[value] || @options[default_key] || @options[:default]
       else
         value
       end

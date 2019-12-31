@@ -3,7 +3,7 @@
 describe TwoWayMapper::Mapping do
   let(:mapping) { described_class.new }
 
-  [:left, :right].each do |method|
+  described_class::DIRECTIONS.each do |method|
     describe "##{method}" do
       it "should set #{method} with options" do
         mapping.send method, :object, opt1: ''
@@ -19,22 +19,28 @@ describe TwoWayMapper::Mapping do
         mapping.right :object
 
         mapping.rule 'firstname', 'FirstName'
-        mapping.rule 'lastname', 'LastName'
+        mapping.rule 'fullname',  'FullName', from_right_to_left_only: true
+        mapping.rule 'lastname',  'LastName'
+        mapping.rule 'fullname1', 'FullName1', from_left_to_right_only: true
       end
 
-      describe "#left_selectors" do
-        subject { mapping.left_selectors }
+      describe '#left_selectors' do
+        it 'should get left selectors' do
+          expect(mapping.left_selectors).to eql %w(firstname fullname lastname fullname1)
+        end
 
-        it "should get left selectors" do
-          is_expected.to eql %w(firstname lastname)
+        it 'should include only mappable selectors if such option is passed' do
+          expect(mapping.left_selectors(mappable: true)).to eql %w(firstname fullname lastname)
         end
       end
 
-      describe "#right_selectors" do
-        subject { mapping.right_selectors }
+      describe '#right_selectors' do
+        it 'should get right selectors' do
+          expect(mapping.right_selectors).to eql %w(FirstName FullName LastName FullName1)
+        end
 
-        it "should get right selectors" do
-          is_expected.to eql %w(FirstName LastName)
+        it 'should include only mappable selectors if such option is passed' do
+          expect(mapping.right_selectors(mappable: true)).to eql %w(FirstName LastName FullName1)
         end
       end
     end
