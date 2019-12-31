@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 describe TwoWayMapper::Node::ActiveRecord do
-  let(:node) { TwoWayMapper::Node::ActiveRecord.new 'user.email' }
+  let(:node) { described_class.new 'user.email' }
 
   describe '#write' do
     it 'should try to build before write' do
       user = double(email: '')
-      obj = double()
+      obj = double
+
       allow(obj).to receive :build_user do
         allow(obj).to receive(:user).and_return user
       end
@@ -18,6 +21,7 @@ describe TwoWayMapper::Node::ActiveRecord do
     it 'should try to build even if respond_to but obj itself is nil' do
       user = double(email: '')
       obj = double(user: nil)
+
       allow(obj).to receive :build_user do
         allow(obj).to receive(:user).and_return user
       end

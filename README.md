@@ -38,6 +38,15 @@ TwoWayMapper.register :customer do |mapping|
 end
 ```
 
+Mapping can be defined explicitly without registration
+
+```ruby
+mapping = TwoWayMapper::Mapping.new
+mapping.left :object
+mapping.right :hash, stringify_keys: true
+# ...
+```
+
 Once mapping is defined we can convert one object to another and vice versa
 
 ```ruby
@@ -46,7 +55,7 @@ Customer = Struct.new :first_name, :last_name, :gender
 customer = Customer.new
 api_response = { 'FirstName' => 'Evee', 'LastName' => 'Fjord', 'sex' => 'female' }
 
-TwoWayMapper[:customer].from_right_to_left customer, api_response
+TwoWayMapper[:customer].from_right_to_left(customer, api_response)
 puts customer.first_name # => 'Evee'
 puts customer.last_name # => 'Fjord'
 puts customer.gender # => 'F'
@@ -58,17 +67,17 @@ another_customer.first_name = 'Step'
 another_customer.last_name = 'Bander'
 another_customer.gender = 'M'
 
-TwoWayMapper[:customer].from_left_to_right another_customer, request_data
+TwoWayMapper[:customer].from_left_to_right(another_customer, request_data)
 puts request_data # => { 'FirstName' => 'Step', 'LastName' => 'Bander', sex: 'male' }
 ```
 
-On rails, you can put all mappings into `app/mappings` folder
+In rails, mappings can be defined in `app/mappings` folder
 
 ### Available plugins
 
 * hash
 * object
-* active_record (same as object, but for keys like `user.email`, it will try to build `user` before updating `email` on write)
+* active_record (same as `object`, but for keys like `user.email`, it builds `user` before updating `email` on write)
 
 ## Contributing
 

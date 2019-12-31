@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 describe TwoWayMapper::Mapping do
+  let(:mapping) { described_class.new }
+
   [:left, :right].each do |method|
     describe "##{method}" do
-      let(:mapping) { TwoWayMapper::Mapping.new }
-
       it "should set #{method} with options" do
         mapping.send method, :object, opt1: ''
 
@@ -13,30 +15,30 @@ describe TwoWayMapper::Mapping do
   end
 
   describe '#rule' do
-    let(:mapping) { TwoWayMapper::Mapping.new }
     before :each do
       mapping.left :object
       mapping.right :hash
     end
 
     context 'left and right validation' do
-      let(:mapping_without_both) { TwoWayMapper::Mapping.new }
-      let(:mapping_without_left) { TwoWayMapper::Mapping.new }
-      let(:mapping_without_right) { TwoWayMapper::Mapping.new }
+      let(:mapping_without_both) { described_class.new }
+      let(:mapping_without_left) { described_class.new }
+      let(:mapping_without_right) { described_class.new }
+
       before :each do
         mapping_without_left.right :hash
         mapping_without_right.left :hash
       end
 
       it 'should raise error when no left or right nodes' do
-        expect{mapping_without_left.rule 'key', 'key'}.to raise_error
-        expect{mapping_without_right.rule 'key', 'key'}.to raise_error
-        expect{mapping_without_both.rule 'key', 'key'}.to raise_error
+        expect { mapping_without_left.rule 'key', 'key' }.to raise_error StandardError
+        expect { mapping_without_right.rule 'key', 'key' }.to raise_error StandardError
+        expect { mapping_without_both.rule 'key', 'key' }.to raise_error StandardError
       end
     end
 
     it 'should add item to rules hash' do
-      expect{mapping.rule 'key1', 'Key1'}.to change{mapping.rules.count}.from(0).to(1)
+      expect { mapping.rule 'key1', 'Key1' }.to change { mapping.rules.count }.from(0).to(1)
 
       rule = mapping.rules.first
       expect(rule).to be_instance_of TwoWayMapper::Rule
@@ -45,7 +47,7 @@ describe TwoWayMapper::Mapping do
     end
 
     it 'should allow to pass hash' do
-      expect{mapping.rule 'key1' => { opt1: 'val' }}.to raise_error
+      expect { mapping.rule 'key1' => { opt1: 'val' } }.to raise_error StandardError
 
       mapping.rule 'key1' => { opt1: 'val' }, 'Key2' => {}
       rule = mapping.rules.first
@@ -71,11 +73,11 @@ describe TwoWayMapper::Mapping do
   end
 
   context 'convertion methods' do
-    let(:mapping) { TwoWayMapper::Mapping.new }
     let(:rule1) { double from_left_to_right: nil, from_right_to_left: nil }
     let(:rule2) { double from_left_to_right: nil, from_right_to_left: nil }
-    let(:left_obj) { double() }
-    let(:right_obj) { double() }
+    let(:left_obj) { double }
+    let(:right_obj) { double }
+
     before :each do
       mapping.left :object
       mapping.right :hash
