@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 describe TwoWayMapper::Node::Object do
-  let(:node) { TwoWayMapper::Node::Object.new 'key1.key11.key111' }
+  let(:node) { described_class.new 'key1.key11.key111' }
 
   describe '#read' do
     it 'should return nil when path is not avaiable' do
@@ -25,7 +27,7 @@ describe TwoWayMapper::Node::Object do
   end
 
   context 'write_if option' do
-    let(:node) { TwoWayMapper::Node::Object.new 'key', write_if: ->(c, n) { c.empty? || n == 'value1'} }
+    let(:node) { described_class.new 'key', write_if: ->(c, n) { c.empty? || n == 'value1'} }
     let(:writable_obj1) { OpenStruct.new key: '' }
     let(:writable_obj2) { OpenStruct.new key: 'smth' }
     let(:not_writable_obj) { OpenStruct.new key: 'smth' }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TwoWayMapper
   class Map
     delegate :[], to: :@maps
@@ -8,7 +10,9 @@ module TwoWayMapper
 
     def register(name)
       mapping = TwoWayMapper::Mapping.new
+
       yield mapping if block_given?
+
       @maps[name.to_sym] = mapping
     end
   end

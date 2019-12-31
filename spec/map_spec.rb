@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 describe TwoWayMapper::Map do
   describe '#register' do
-    let(:map) { TwoWayMapper::Map.new }
+    let(:map) { described_class.new }
 
     it 'should register new mapping' do
       map.register :import

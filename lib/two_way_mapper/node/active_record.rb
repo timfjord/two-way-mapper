@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TwoWayMapper
   module Node
     class ActiveRecord < Object
@@ -6,7 +8,7 @@ module TwoWayMapper
       end
 
       def create_node(obj, key)
-        obj.send "build_#{key}"
+        obj.send("build_#{key}")
       end
     end
   end

@@ -1,10 +1,14 @@
+# frozen_string_literal: true
+
 module TwoWayMapper
   module Node
-    class Hash < Abstract
+    class Hash < Base
       def write(source, value)
         rewinded = rewind_forward source, 1
 
-        rewinded[keys.last] = value if writable? rewinded[keys.last], value
+        return unless writable?(rewinded[keys.last], value)
+
+        rewinded[keys.last] = value
       end
 
       private

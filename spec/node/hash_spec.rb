@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 describe TwoWayMapper::Node::Hash do
   context 'normal keys' do
-    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11.key111' }
+    let(:node) { described_class.new('key1.key11.key111') }
 
     describe '#read' do
       it 'should return nil when path is not avaiable' do
@@ -25,7 +27,9 @@ describe TwoWayMapper::Node::Hash do
   end
 
   context 'string keys' do
-    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11.key111', stringify_keys: true }
+    let(:node) do
+      described_class.new('key1.key11.key111', stringify_keys: true)
+    end
 
     describe '#read' do
       it 'should return nil when path is not avaiable' do
@@ -50,7 +54,7 @@ describe TwoWayMapper::Node::Hash do
   end
 
   context 'write_if option' do
-    let(:node) { TwoWayMapper::Node::Hash.new 'key1.key11', write_if: ->(c, n) { c.empty? || n == 'value1' } }
+    let(:node) { described_class.new 'key1.key11', write_if: ->(c, n) { c.empty? || n == 'value1' } }
     let(:writable_obj1) { { key1: { key11: '' } } }
     let(:writable_obj2) { { key1: { key11: 'smth' } } }
     let(:not_writable_obj) { { key1: { key11: 'smth' } } }
