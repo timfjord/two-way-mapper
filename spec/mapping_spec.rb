@@ -12,6 +12,32 @@ describe TwoWayMapper::Mapping do
         expect(mapping.send("#{method}_options")).to include opt1: ''
       end
     end
+
+    context 'selectors' do
+      before do
+        mapping.left :object
+        mapping.right :object
+
+        mapping.rule 'firstname', 'FirstName'
+        mapping.rule 'lastname', 'LastName'
+      end
+
+      describe "#left_selectors" do
+        subject { mapping.left_selectors }
+
+        it "should get left selectors" do
+          is_expected.to eql %w(firstname lastname)
+        end
+      end
+
+      describe "#right_selectors" do
+        subject { mapping.right_selectors }
+
+        it "should get right selectors" do
+          is_expected.to eql %w(FirstName LastName)
+        end
+      end
+    end
   end
 
   describe '#rule' do

@@ -15,6 +15,12 @@ module TwoWayMapper
           @#{method}_options = options
         end
       CODE
+
+      class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def #{method}_selectors
+          rules.map { |rule| rule.#{method}.selector }
+        end
+      CODE
     end
 
     def node_class(plugin)
