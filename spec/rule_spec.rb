@@ -31,6 +31,30 @@ describe TwoWayMapper::Rule do
     end
   end
 
+  context 'with from_left_to_right_only/from_right_to_left_only  options' do
+    describe '#from_left_to_right' do
+      it 'should do nothing if from_right_to_left_only is set to true' do
+        rule = described_class.new left_node, right_node, from_right_to_left_only: true
+        left_object.key1 = 'value1'
+        right_object = {}
+        rule.from_left_to_right(left_object, right_object)
+
+        expect(right_object).to eql({})
+      end
+    end
+
+    describe '#from_right_to_left' do
+      it 'should do nothing if from_left_to_right_only is set to true' do
+        rule = described_class.new left_node, right_node, from_left_to_right_only: true
+        left_object.key1 = nil
+        right_object = { Kk: { Key1: 'value1' } }
+        rule.from_right_to_left(left_object, right_object)
+
+        expect(left_object.key1).to be_nil
+      end
+    end
+  end
+
   context 'with map option' do
     let(:options) { { map: map } }
 
@@ -55,7 +79,7 @@ describe TwoWayMapper::Rule do
     end
   end
 
-  context 'with default option' do
+  context 'with map and default option' do
     describe '#from_left_to_right' do
       it 'should return default value if not found' do
         rule = described_class.new left_node, right_node, map: map, default: 'not found'
