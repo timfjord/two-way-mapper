@@ -18,10 +18,12 @@ module TwoWayMapper
         end
 
         def #{from}_selectors(mappable: false)
-          rules.each_with_object [] do |rule, memo|
-            next if mappable && rule.from_#{from}_to_#{to}_only?
-
-            memo << rule.#{from}.selector
+          rules.flat_map do |rule|
+            if mappable && rule.from_#{from}_to_#{to}_only?
+              []
+            else
+              rule.#{from}_nodes.map(&:selector)
+            end
           end
         end
 
@@ -32,7 +34,7 @@ module TwoWayMapper
       CODE
     end
 
-    def rule(left_selector, right_selector = {}, options = {})
+    def rule(left_selectors, right_selectors = {}, options = {})
       raise 'You need to set left before calling rule' unless left_class
       raise 'You need to set right before calling rule' unless right_class
 
@@ -40,20 +42,24 @@ module TwoWayMapper
       left_opt = opt.delete(:left) || {}
       right_opt = opt.delete(:right) || {}
 
-      if left_selector.is_a?(Hash)
-        raise ArgumentError if left_selector.count < 2
+      if left_selectors.is_a?(Hash)
+        raise ArgumentError if left_selectors.count < 2
 
-        opt = left_selector
-        left_selector = opt.keys.first
-        left_opt.merge! opt.delete(left_selector)
-        right_selector = opt.keys.first
-        right_opt.merge!(opt.delete(right_selector))
+        opt = left_selectors
+        left_selectors = opt.keys.first
+        left_opt.merge! opt.delete(left_selectors)
+        right_selectors = opt.keys.first
+        right_opt.merge!(opt.delete(right_selectors))
       end
 
-      left = left_class.new(left_selector, left_options.merge(left_opt))
-      right = right_class.new(right_selector, right_options.merge(right_opt))
+      left_nodes = Array(left_selectors).map do |left_selector|
+        left_class.new(left_selector, left_options.merge(left_opt))
+      end
+      right_nodes = Array(right_selectors).map do |right_selector|
+        right_class.new(right_selector, right_options.merge(right_opt))
+      end
 
-      @rules << Rule.new(left, right, opt)
+      @rules << Rule.new(left_nodes, right_nodes, opt)
     end
 
     private

@@ -18,30 +18,43 @@ describe TwoWayMapper::Mapping do
     before do
       mapping.left :object
       mapping.right :object
+    end
 
+    before do
       mapping.rule 'firstname', 'FirstName'
       mapping.rule 'fullname',  'FullName', from_right_to_left_only: true
       mapping.rule 'lastname',  'LastName'
       mapping.rule 'fullname1', 'FullName1', from_left_to_right_only: true
+      mapping.rule ['field1', 'field2'], 'Field1'
+      mapping.rule 'field3', ['Field2', 'Field3']
+      mapping.rule ['field4', 'field5'], ['Field4', 'Field5']
     end
 
     describe '#left_selectors' do
       it 'should get left selectors' do
-        expect(mapping.left_selectors).to eql %w(firstname fullname lastname fullname1)
+        expect(mapping.left_selectors).to eql(
+          %w(firstname fullname lastname fullname1 field1 field2 field3 field4 field5)
+        )
       end
 
       it 'should include only mappable selectors if such option is passed' do
-        expect(mapping.left_selectors(mappable: true)).to eql %w(firstname fullname lastname)
+        expect(mapping.left_selectors(mappable: true)).to eql(
+          %w(firstname fullname lastname field1 field2 field3 field4 field5)
+        )
       end
     end
 
     describe '#right_selectors' do
       it 'should get right selectors' do
-        expect(mapping.right_selectors).to eql %w(FirstName FullName LastName FullName1)
+        expect(mapping.right_selectors).to eql(
+          %w(FirstName FullName LastName FullName1 Field1 Field2 Field3 Field4 Field5)
+        )
       end
 
       it 'should include only mappable selectors if such option is passed' do
-        expect(mapping.right_selectors(mappable: true)).to eql %w(FirstName LastName FullName1)
+        expect(mapping.right_selectors(mappable: true)).to eql(
+          %w(FirstName LastName FullName1 Field1 Field2 Field3 Field4 Field5)
+        )
       end
     end
   end
@@ -74,8 +87,21 @@ describe TwoWayMapper::Mapping do
 
       rule = mapping.rules.first
       expect(rule).to be_instance_of TwoWayMapper::Rule
-      expect(rule.left.selector).to eql 'key1'
-      expect(rule.right.selector).to eql 'Key1'
+      expect(rule.left_nodes.map(&:selector)).to eql ['key1']
+      expect(rule.right_nodes.map(&:selector)).to eql ['Key1']
+    end
+
+    it 'should support multiple selectors' do
+      mapping.rule ['key1', 'key2'], ['Key1', 'Key2']
+
+      rule = mapping.rules.first
+
+      expect(rule.left_nodes.size).to eql 2
+      expect(rule.left_nodes[0].selector).to eql 'key1'
+      expect(rule.left_nodes[1].selector).to eql 'key2'
+      expect(rule.right_nodes.size).to eql 2
+      expect(rule.right_nodes[0].selector).to eql 'Key1'
+      expect(rule.right_nodes[1].selector).to eql 'Key2'
     end
 
     it 'should allow to pass hash' do
@@ -84,16 +110,16 @@ describe TwoWayMapper::Mapping do
       mapping.rule 'key1' => { opt1: 'val' }, 'Key2' => {}
       rule = mapping.rules.first
 
-      expect(rule.left.selector).to eql 'key1'
-      expect(rule.right.selector).to eql 'Key2'
+      expect(rule.left_nodes.map(&:selector)).to eql ['key1']
+      expect(rule.right_nodes.map(&:selector)).to eql ['Key2']
     end
 
     it 'should allow to pass left abd right options ' do
       mapping.rule 'key1', 'Key2', left: { opt1: 'val' }, right: { opt2: 'val' }
       rule = mapping.rules.first
 
-      expect(rule.left.options).to include opt1: 'val'
-      expect(rule.right.options).to include opt2: 'val'
+      expect(rule.left_nodes.first.options).to include opt1: 'val'
+      expect(rule.right_nodes.first.options).to include opt2: 'val'
     end
 
     it 'should work with options copy' do

@@ -40,11 +40,7 @@ module TwoWayMapper
 
         keys[0..to].each do |key|
           unless rewind_to?(obj, key)
-            if block_given?
-              yield(obj, key)
-            else
-              create_node(obj, key)
-            end
+            block_given? ? yield(obj, key) : create_node(obj, key)
           end
           obj = next_key(obj, key)
         end
