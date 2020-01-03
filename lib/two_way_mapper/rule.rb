@@ -2,38 +2,28 @@
 
 module TwoWayMapper
   class Rule
-    attr_reader :left, :right
+    attr_reader :left_nodes, :right_nodes
 
-    def initialize(left, right, opt = {})
-      @left = left
-      @right = right
+    def initialize(left_nodes, right_nodes, opt = {})
+      @left_nodes = left_nodes
+      @right_nodes = right_nodes
       @options = opt
     end
 
     def from_left_to_right(left_obj, right_obj)
       return right_obj if from_right_to_left_only?
 
-      value = left.read(left_obj)
-      value = map_value(value, true)
-      if @options[:on_left_to_right].respond_to?(:call)
-        value = @options[:on_left_to_right].call(value, left_obj, right_obj)
-      end
-      right.write(right_obj, value)
+      value = read(left_nodes, [left_obj, right_obj], true)
 
-      right_obj
+      write(right_nodes, right_obj, value)
     end
 
     def from_right_to_left(left_obj, right_obj)
       return left_obj if from_left_to_right_only?
 
-      value = right.read(right_obj)
-      value = map_value(value, false)
-      if @options[:on_right_to_left].respond_to?(:call)
-        value = @options[:on_right_to_left].call(value, left_obj, right_obj)
-      end
-      left.write(left_obj, value)
+      value = read(right_nodes, [left_obj, right_obj], false)
 
-      left_obj
+      write(left_nodes, left_obj, value)
     end
 
     def from_right_to_left_only?
@@ -46,7 +36,32 @@ module TwoWayMapper
 
     private
 
-    def map_value(value, left_to_right = true)
+    def read(nodes, objects, left_to_right)
+      callback = left_to_right ? :on_left_to_right : :on_right_to_left
+      obj = left_to_right ? objects.first : objects.last
+      value = nil
+
+      nodes.each do |node|
+        value = node.read(obj)
+        value = map_value(value, left_to_right)
+        if @options[callback].respond_to?(:call)
+          args = [value] + objects + [node]
+          value = @options[callback].call(*args)
+        end
+
+        break if value
+      end
+
+      value
+    end
+
+    def write(nodes, obj, value)
+      nodes.each { |node| node.write(obj, value) }
+
+      obj
+    end
+
+    def map_value(value, left_to_right)
       map = @options[:map]
       if map.is_a?(Hash)
         map = map.invert unless left_to_right
