@@ -4,10 +4,10 @@ module TwoWayMapper
   class Mapping
     DIRECTIONS = [:left, :right].freeze
 
-    attr_reader :rules, :left_class, :left_options, :right_class, :right_options
+    attr_reader :rules_list, :left_class, :left_options, :right_class, :right_options
 
     def initialize
-      @rules = []
+      @rules_list = []
     end
 
     [DIRECTIONS, DIRECTIONS.reverse].each do |from, to|
@@ -18,7 +18,7 @@ module TwoWayMapper
         end
 
         def #{from}_selectors(mappable: false)
-          rules.flat_map do |rule|
+          rules_list.flat_map do |rule|
             if mappable && rule.from_#{from}_to_#{to}_only?
               []
             else
@@ -28,15 +28,15 @@ module TwoWayMapper
         end
 
         def from_#{from}_to_#{to}(left_obj, right_obj)
-          rules.each { |rule| rule.from_#{from}_to_#{to}(left_obj, right_obj) }
+          rules_list.each { |rule| rule.from_#{from}_to_#{to}(left_obj, right_obj) }
           #{to}_obj
         end
       CODE
     end
 
     def rule(left_selectors, right_selectors = {}, options = {})
-      raise 'You need to set left before calling rule' unless left_class
-      raise 'You need to set right before calling rule' unless right_class
+      raise 'left is not defined' unless left_class
+      raise 'right is not defined' unless right_class
 
       opt = options.dup
       left_opt = opt.delete(:left) || {}
@@ -52,14 +52,17 @@ module TwoWayMapper
         right_opt.merge!(opt.delete(right_selectors))
       end
 
-      left_nodes = Array(left_selectors).map do |left_selector|
-        left_class.new(left_selector, left_options.merge(left_opt))
-      end
-      right_nodes = Array(right_selectors).map do |right_selector|
-        right_class.new(right_selector, right_options.merge(right_opt))
-      end
+      @rules_list << Rule.new(
+        build_nodes(left_selectors, left_class, left_options.merge(left_opt)),
+        build_nodes(right_selectors, right_class, right_options.merge(right_opt)),
+        opt
+      )
+    end
 
-      @rules << Rule.new(left_nodes, right_nodes, opt)
+    def rules(hash)
+      hash.each do |left_selector, right_selector|
+        rule(left_selector, right_selector)
+      end
     end
 
     private
@@ -68,6 +71,12 @@ module TwoWayMapper
       TwoWayMapper::Node.const_get(plugin.to_s.camelize)
     rescue NameError
       raise NameError, 'Cannot find node'
+    end
+
+    def build_nodes(selectors, klass, opt)
+      Array(selectors).map do |selector|
+        klass.new(selector, opt)
+      end
     end
   end
 end

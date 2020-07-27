@@ -38,6 +38,20 @@ TwoWayMapper.register :customer do |mapping|
 end
 ```
 
+For simple rules use
+
+```ruby
+TwoWayMapper.register :customer do |mapping|
+  mapping.left :object # set left plugin to object
+  mapping.right :hash, stringify_keys: true # set right plugin to hash
+
+  mapping.rules(
+    'first_name' => 'FirstName',
+    'last_name' => 'LastName'
+  )
+end
+```
+
 Mapping can be defined explicitly without registration
 
 ```ruby
@@ -47,7 +61,7 @@ mapping.right :hash, stringify_keys: true
 # ...
 ```
 
-Once mapping is defined we can convert one object to another and vice versa
+Once the mapping is defined it can be used to convert one object to another and vice versa
 
 ```ruby
 Customer = Struct.new :first_name, :last_name, :gender
