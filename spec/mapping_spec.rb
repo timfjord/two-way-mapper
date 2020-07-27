@@ -83,9 +83,9 @@ describe TwoWayMapper::Mapping do
     end
 
     it 'should add item to rules hash' do
-      expect { mapping.rule 'key1', 'Key1' }.to change { mapping.rules.count }.from(0).to(1)
+      expect { mapping.rule 'key1', 'Key1' }.to change { mapping.rules_list.count }.from(0).to(1)
 
-      rule = mapping.rules.first
+      rule = mapping.rules_list.first
       expect(rule).to be_instance_of TwoWayMapper::Rule
       expect(rule.left_nodes.map(&:selector)).to eql ['key1']
       expect(rule.right_nodes.map(&:selector)).to eql ['Key1']
@@ -94,7 +94,7 @@ describe TwoWayMapper::Mapping do
     it 'should support multiple selectors' do
       mapping.rule ['key1', 'key2'], ['Key1', 'Key2']
 
-      rule = mapping.rules.first
+      rule = mapping.rules_list.first
 
       expect(rule.left_nodes.size).to eql 2
       expect(rule.left_nodes[0].selector).to eql 'key1'
@@ -108,7 +108,7 @@ describe TwoWayMapper::Mapping do
       expect { mapping.rule 'key1' => { opt1: 'val' } }.to raise_error StandardError
 
       mapping.rule 'key1' => { opt1: 'val' }, 'Key2' => {}
-      rule = mapping.rules.first
+      rule = mapping.rules_list.first
 
       expect(rule.left_nodes.map(&:selector)).to eql ['key1']
       expect(rule.right_nodes.map(&:selector)).to eql ['Key2']
@@ -116,7 +116,7 @@ describe TwoWayMapper::Mapping do
 
     it 'should allow to pass left abd right options ' do
       mapping.rule 'key1', 'Key2', left: { opt1: 'val' }, right: { opt2: 'val' }
-      rule = mapping.rules.first
+      rule = mapping.rules_list.first
 
       expect(rule.left_nodes.first.options).to include opt1: 'val'
       expect(rule.right_nodes.first.options).to include opt2: 'val'
@@ -139,7 +139,7 @@ describe TwoWayMapper::Mapping do
     before :each do
       mapping.left :object
       mapping.right :hash
-      allow(mapping).to receive(:rules).and_return [rule1, rule2]
+      allow(mapping).to receive(:rules_list).and_return [rule1, rule2]
     end
 
     [described_class::DIRECTIONS, described_class::DIRECTIONS.reverse].each do |from, to|
@@ -152,6 +152,32 @@ describe TwoWayMapper::Mapping do
 
           mapping.send method, left_obj, right_obj
         end
+      end
+    end
+  end
+
+  describe '#rules' do
+    let(:hash) do
+      {
+        key1: :Key1,
+        key2: :Key2
+      }
+    end
+
+    before :each do
+      mapping.left :object
+      mapping.right :hash
+    end
+
+    it 'should allow to define multiple rules' do
+      expect { mapping.rules(hash) }.to change { mapping.rules_list.count }.from(0).to(2)
+
+      hash.each_with_index do |(left, right), index|
+        rule = mapping.rules_list[index]
+
+        expect(rule).to be_instance_of TwoWayMapper::Rule
+        expect(rule.left_nodes.map(&:selector)).to eql [left]
+        expect(rule.right_nodes.map(&:selector)).to eql [right]
       end
     end
   end
